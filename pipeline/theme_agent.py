@@ -87,7 +87,7 @@ def _generate_script(slot: Slot, context: str, search_fn) -> dict[str, str]:
         )
 
     system_instruction = (
-        f"You are a professional French radio scriptwriter. "
+        f"You are a professional radio scriptwriter. "
         f"Write engaging, natural-sounding radio scripts in {slot.langue}. "
         "You have access to a search_web tool — use it to find additional fresh information if needed. "
         'Return ONLY valid JSON, no markdown fences: '

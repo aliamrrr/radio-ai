@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -13,8 +14,9 @@ from pipeline.utils import get_logger
 
 logger = get_logger(__name__)
 
-# Point pydub to bundled ffmpeg — no system install required
-AudioSegment.converter = imageio_ffmpeg.get_ffmpeg_exe()
+# Point pydub to bundled ffmpeg for encoding — no system install required
+_FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
+AudioSegment.converter = _FFMPEG
 
 # Map thematique → intro filename (handles space vs underscore mismatches)
 _INTRO_MAP: dict[str, str] = {
@@ -29,7 +31,15 @@ _INTRO_MAP: dict[str, str] = {
 
 
 def _mp3(path: Path) -> AudioSegment:
-    return AudioSegment.from_mp3(str(path))
+    """Decode MP3 via bundled ffmpeg → AudioSegment. No system ffprobe needed."""
+    cmd = [
+        _FFMPEG, "-v", "error", "-i", str(path),
+        "-f", "s16le", "-acodec", "pcm_s16le", "-ac", "1", "-ar", "22050", "pipe:1",
+    ]
+    proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if proc.returncode != 0:
+        raise RuntimeError(f"ffmpeg decode failed for {path.name}: {proc.stderr.decode()}")
+    return AudioSegment(data=proc.stdout, sample_width=2, frame_rate=22050, channels=1)
 
 
 def _resolve_asset(relative: str) -> Path:
@@ -118,7 +128,7 @@ def merge_show_audio(slot: Slot) -> Slot:
     out = config.AUDIO_DIR / f"{slot.id}.mp3"
     final.export(str(out), format="mp3", bitrate="128k")
     total = int(len(final) / 1000)
-    logger.info(f"[audio] {slot.id} → {out.name}  total={total}s")
+    logger.info(f"[audio] {slot.id} -> {out.name}  total={total}s")
 
     return slot.model_copy(update={
         "audio_path":         f"audio/{slot.id}.mp3",
@@ -155,7 +165,7 @@ def fill_music_gap(slot: Slot, gap_sec: int) -> Slot:
 
     out = config.AUDIO_DIR / f"{slot.id}.mp3"
     music.export(str(out), format="mp3", bitrate="128k")
-    logger.info(f"[audio] {slot.id} → {out.name}  ({gap_sec}s)")
+    logger.info(f"[audio] {slot.id} -> {out.name}  ({gap_sec}s)")
 
     return slot.model_copy(update={
         "audio_path":        f"audio/{slot.id}.mp3",
@@ -166,19 +176,42 @@ def fill_music_gap(slot: Slot, gap_sec: int) -> Slot:
 
 def process_all_audio(slots: list[Slot]) -> list[Slot]:
     """
-    Run audio production for every slot:
-    - Show slots  → merge intro + raw_script + outro
-    - Music slots → fill gap with random overlap song
+    For each show slot: merge intro + raw_script + outro.
+    Automatically detect gaps between consecutive shows and fill them with
+    random overlap songs — no music slots needed in programme.json.
+    Returns original slots + auto-generated gap slots, sorted by start time.
     """
-    ordered = sorted(slots, key=lambda s: s.start_seconds())
-    slot_map = {s.id: s for s in slots}
+    show_slots = sorted(
+        [s for s in slots if not s.is_music],
+        key=lambda s: s.start_seconds(),
+    )
+    result: list[Slot] = []
 
-    for i, slot in enumerate(ordered):
-        if slot.is_music:
-            nxt = ordered[i + 1] if i + 1 < len(ordered) else None
-            gap_sec = (nxt.start_seconds() - slot.start_seconds()) if nxt else 300
-            slot_map[slot.id] = fill_music_gap(slot, max(0, gap_sec))
-        else:
-            slot_map[slot.id] = merge_show_audio(slot)
+    for i, slot in enumerate(show_slots):
+        merged = merge_show_audio(slot)
+        result.append(merged)
 
-    return [slot_map[s.id] for s in slots]
+        if i + 1 < len(show_slots):
+            nxt = show_slots[i + 1]
+            show_end_sec = slot.start_seconds() + merged.duration_int
+            gap_sec = nxt.start_seconds() - show_end_sec
+
+            _MAX_GAP_SEC = 1800  # cap at 30 min to avoid huge loop files
+            if 2 < gap_sec <= _MAX_GAP_SEC:
+                h, m = divmod(show_end_sec // 60, 60)
+                gap_time = f"{h:02d}:{m:02d}"
+                gap_id = f"gap_{gap_time.replace(':', '')}"
+                gap_slot = Slot(
+                    id=gap_id,
+                    start_time=gap_time,
+                    duration_sec=gap_sec,
+                    thematique="music",
+                    type_script="music",
+                    title="music break",
+                )
+                result.append(fill_music_gap(gap_slot, gap_sec))
+                logger.info(f"[audio] auto gap {gap_time} -> {gap_sec}s filler inserted")
+            elif gap_sec > _MAX_GAP_SEC:
+                logger.warning(f"[audio] gap {gap_sec}s > 30min — skipping gap fill")
+
+    return result

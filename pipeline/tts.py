@@ -8,6 +8,7 @@ import httpx
 import lameenc
 import numpy as np
 import soundfile as sf
+from openai import OpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from pipeline import config
@@ -18,6 +19,9 @@ logger = get_logger(__name__)
 
 SILENCE_MS = 200
 _TTS_URL = "https://api.gradium.ai/api/post/speech/tts"
+
+# OpenAI TTS voices — short names trigger OpenAI, long base64-style IDs use Gradium
+_OPENAI_VOICES = {"alloy", "ash", "ballad", "coral", "echo", "fable", "nova", "onyx", "sage", "shimmer"}
 
 
 # ── Audio helpers ─────────────────────────────────────────────────────────────
@@ -54,6 +58,19 @@ def _generate_silent_mp3(duration_sec: int, samplerate: int = 22050) -> bytes:
 # ── Gradium API ───────────────────────────────────────────────────────────────
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
+def _call_openai_tts(text: str, voice: str) -> bytes:
+    """OpenAI TTS — returns raw WAV bytes."""
+    client = OpenAI(api_key=config.OPENAI_API_KEY, http_client=httpx.Client(verify=False))
+    response = client.audio.speech.create(
+        model="tts-1",
+        voice=voice,  # type: ignore[arg-type]
+        input=text,
+        response_format="wav",
+    )
+    return response.content
+
+
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
 def _call_gradium_tts(text: str, voice_id: str) -> bytes:
     """POST to Gradium TTS. Returns raw WAV bytes."""
     headers = {
@@ -72,11 +89,18 @@ def _call_gradium_tts(text: str, voice_id: str) -> bytes:
         return resp.content
 
 
+def _call_tts(text: str, voice: str) -> bytes:
+    """Route to OpenAI TTS or Gradium based on voice identifier."""
+    if voice in _OPENAI_VOICES:
+        return _call_openai_tts(text, voice)
+    return _call_gradium_tts(text, voice)
+
+
 def _get_voice(name: str) -> str:
     voice = config.VOICE_MAP.get(name)
     if not voice:
-        logger.warning(f"No voice mapping for '{name}', using Lea")
-        voice = "QY_BJKHMElKDO12-"  # Lea — French female default
+        logger.warning(f"No voice mapping for '{name}', defaulting to nova")
+        voice = "nova"
     return voice
 
 
@@ -135,7 +159,7 @@ def synthesize_slot(slot: Slot, use_stub: bool = False) -> Slot:
     tmp_path = output_path.with_suffix(".tmp.mp3")
     script = slot.script or ""
 
-    if use_stub or config._is_placeholder(config.GRADIUM_API_KEY):
+    if use_stub or config._is_placeholder(config.OPENAI_API_KEY):
         logger.warning(f"[tts] GRADIUM_API_KEY not set — silent stub for {slot.id}")
         tmp_path.write_bytes(_generate_silent_mp3(slot.duration_int or 60))
         tmp_path.replace(output_path)
@@ -150,7 +174,7 @@ def synthesize_slot(slot: Slot, use_stub: bool = False) -> Slot:
             for speaker, text in lines:
                 voice = _get_voice(speaker)
                 logger.info(f"[tts] {slot.id} [{speaker}] {len(text)} chars")
-                wav_bytes = _call_gradium_tts(text, voice)
+                wav_bytes = _call_tts(text, voice)
                 arr, samplerate = _wav_bytes_to_array(wav_bytes)
                 segments.append(arr)
                 segments.append(_silence_array(samplerate))
@@ -166,7 +190,7 @@ def synthesize_slot(slot: Slot, use_stub: bool = False) -> Slot:
             samplerate = 22050
             segments: list[np.ndarray] = []
             for chunk in chunks:
-                wav_bytes = _call_gradium_tts(chunk, voice)
+                wav_bytes = _call_tts(chunk, voice)
                 arr, samplerate = _wav_bytes_to_array(wav_bytes)
                 segments.append(arr)
                 segments.append(_silence_array(samplerate, ms=100))

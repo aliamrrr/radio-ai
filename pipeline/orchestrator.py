@@ -46,7 +46,7 @@ def _call_agent(thematique: str, today: str) -> list[str]:
                 "content": (
                     "You are a radio content researcher. Given a thematic area and today's date, "
                     "generate 2-3 specific web search queries to find the most current and relevant "
-                    "news or content for a French radio audience. "
+                    "news or content for an English-speaking radio audience. "
                     'Return ONLY valid JSON, no markdown fences: {"queries": ["query1", "query2", ...]}'
                 ),
             },
@@ -55,7 +55,7 @@ def _call_agent(thematique: str, today: str) -> list[str]:
                 "content": (
                     f"Thematic: {thematique}\n"
                     f"Today's date: {today}\n"
-                    "Generate 2-3 specific web search queries for a French radio audience."
+                    "Generate 2-3 specific web search queries for an English-speaking radio audience."
                 ),
             },
         ],

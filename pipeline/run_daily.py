@@ -88,16 +88,13 @@ def seed_mock(slots: list[Slot]) -> list[Slot]:
 
 
 def run_pipeline(slots: list[Slot], dry_run: bool = False, skip_tts: bool = False) -> list[Slot]:
-    # Separate show slots from music slots (music slots skip steps 1-4)
-    show_slots = [s for s in slots if not s.is_music]
-
     # Step 1: Generate search queries via orchestrator
     console.print("[bold cyan]Step 1/5:[/bold cyan] Generating search queries...")
-    queries_by_theme = generate_queries(show_slots)
+    queries_by_theme = generate_queries(slots)
 
     # Step 2: Run theme agents in parallel
     console.print("[bold cyan]Step 2/5:[/bold cyan] Running theme agents...")
-    themes = list({s.thematique for s in show_slots})
+    themes = list({s.thematique for s in slots})
 
     with ThreadPoolExecutor(max_workers=max(len(themes), 1)) as pool:
         futures = {
@@ -105,7 +102,7 @@ def run_pipeline(slots: list[Slot], dry_run: bool = False, skip_tts: bool = Fals
                 process_theme,
                 theme,
                 queries_by_theme.get(theme, []),
-                show_slots,
+                slots,
             )
             for theme in themes
         }
@@ -115,7 +112,7 @@ def run_pipeline(slots: list[Slot], dry_run: bool = False, skip_tts: bool = Fals
                 theme_results[theme] = future.result()
             except Exception as e:
                 logger.error(f"Theme agent crashed for '{theme}': {e} — keeping original slots")
-                theme_results[theme] = [s for s in show_slots if s.thematique == theme]
+                theme_results[theme] = [s for s in slots if s.thematique == theme]
 
     # Merge: last theme's update for each slot wins
     slot_map: dict[str, Slot] = {s.id: s for s in slots}
@@ -124,17 +121,16 @@ def run_pipeline(slots: list[Slot], dry_run: bool = False, skip_tts: bool = Fals
             if s.thematique == theme:
                 slot_map[s.id] = s
     slots = list(slot_map.values())
-    show_slots = [s for s in slots if not s.is_music]
 
     if dry_run:
         console.print("[bold green]Dry run complete. Scripts generated:[/bold green]")
-        _print_scripts(show_slots)
+        _print_scripts(slots)
         return slots
 
-    # Step 3: Generate images in parallel (show slots only)
+    # Step 3: Generate images in parallel
     console.print("[bold cyan]Step 3/5:[/bold cyan] Generating images...")
     with ThreadPoolExecutor(max_workers=4) as pool:
-        image_futures = {s.id: pool.submit(media_agent.generate_image, s) for s in show_slots}
+        image_futures = {s.id: pool.submit(media_agent.generate_image, s) for s in slots}
         for slot_id, future in image_futures.items():
             try:
                 updated = future.result()
@@ -142,15 +138,14 @@ def run_pipeline(slots: list[Slot], dry_run: bool = False, skip_tts: bool = Fals
             except Exception as e:
                 logger.error(f"Image generation failed for {slot_id}: {e}")
     slots = list(slot_map.values())
-    show_slots = [s for s in slots if not s.is_music]
 
-    # Step 4: Synthesize audio in parallel (show slots only)
+    # Step 4: Synthesize audio in parallel
     if skip_tts:
         console.print("[bold yellow]Step 4/5:[/bold yellow] Skipping TTS (--skip-tts).")
     else:
         console.print("[bold cyan]Step 4/5:[/bold cyan] Synthesizing audio...")
         with ThreadPoolExecutor(max_workers=2) as pool:
-            tts_futures = {s.id: pool.submit(tts.synthesize_slot, s) for s in show_slots}
+            tts_futures = {s.id: pool.submit(tts.synthesize_slot, s) for s in slots}
             for slot_id, future in tts_futures.items():
                 try:
                     updated = future.result()
@@ -159,8 +154,8 @@ def run_pipeline(slots: list[Slot], dry_run: bool = False, skip_tts: bool = Fals
                     logger.error(f"TTS failed for {slot_id}: {e}")
     slots = list(slot_map.values())
 
-    # Step 4.5: Merge intros/outros and fill music gaps
-    console.print("[bold cyan]Step 4.5/5:[/bold cyan] Producing final audio (intro+script+outro, gap fills)...")
+    # Step 4.5: Merge intros/outros, auto-detect and fill gaps with music
+    console.print("[bold cyan]Step 4.5/5:[/bold cyan] Producing final audio (intro+script+outro, auto gap fills)...")
     slots = audio_producer.process_all_audio(list(slot_map.values()))
     slot_map = {s.id: s for s in slots}
 
