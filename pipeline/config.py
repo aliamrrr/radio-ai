@@ -24,7 +24,7 @@ LOGS_DIR = _ROOT / "logs"
 TIMEZONE = os.getenv("TIMEZONE", "Europe/Paris")
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5.4-mini")
 
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")
 
