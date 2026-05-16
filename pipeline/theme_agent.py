@@ -3,8 +3,9 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from google import genai
-from google.genai import types
+import httpx
+from openai import OpenAI
+from openai.types.chat import ChatCompletionMessageParam
 from tavily import TavilyClient
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -15,6 +16,28 @@ from pipeline.utils import get_logger
 logger = get_logger(__name__)
 
 WORDS_PER_MINUTE = 150
+
+_SEARCH_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "search_web",
+        "description": "Search the web for recent news and information on a given topic.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "The search query"},
+            },
+            "required": ["query"],
+        },
+    },
+}
+
+
+def _get_client() -> OpenAI:
+    return OpenAI(
+        api_key=config.OPENAI_API_KEY,
+        http_client=httpx.Client(verify=False),
+    )
 
 
 def _target_word_count(duration_sec: int) -> int:
@@ -47,10 +70,7 @@ def _format_noms(noms: list[str]) -> str:
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
 def _generate_script(slot: Slot, context: str, search_fn) -> dict[str, str]:
-    """
-    Script Writer Agent — Gemini with Tavily search tool.
-    Uses automatic function calling: the model can call search_web as needed.
-    """
+    """Script Writer Agent — OpenAI with Tavily search tool."""
     word_count = _target_word_count(slot.duration_sec)
     noms_str = _format_noms(slot.noms)
 
@@ -74,7 +94,7 @@ def _generate_script(slot: Slot, context: str, search_fn) -> dict[str, str]:
         '{"sujet": "<topic title, max 2 lines>", "script": "<full script text>"}'
     )
 
-    prompt = (
+    user_prompt = (
         f"Theme: {slot.thematique}\n"
         f"Format: {slot.type_script}\n"
         f"Hosts: {noms_str}\n"
@@ -85,36 +105,46 @@ def _generate_script(slot: Slot, context: str, search_fn) -> dict[str, str]:
         f"Write a {slot.type_script} script of approximately {word_count} words."
     )
 
-    # Define Tavily as an ADK-style tool function
-    def search_web(query: str) -> str:
-        """Search the web for recent news and information on a given topic."""
-        return search_fn(query)
+    client = _get_client()
+    messages: list[ChatCompletionMessageParam] = [
+        {"role": "system", "content": system_instruction},
+        {"role": "user", "content": user_prompt},
+    ]
 
-    import httpx
-    client = genai.Client(api_key=config.GOOGLE_API_KEY)
-    # Bypass SSL verification (needed when corporate proxy intercepts TLS)
-    client._api_client._httpx_client = httpx.Client(verify=False)
-
-    # Automatic function calling: Gemini calls search_web autonomously if needed
-    response = client.models.generate_content(
-        model=config.GEMINI_MODEL,
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            system_instruction=system_instruction,
-            tools=[search_web],
-            automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=False),
+    # Agentic tool-calling loop (max 5 rounds)
+    for _ in range(5):
+        response = client.chat.completions.create(
+            model=config.OPENAI_MODEL,
+            messages=messages,
+            tools=[_SEARCH_TOOL],
+            tool_choice="auto",
             temperature=0.8,
-        ),
-    )
+        )
+        msg = response.choices[0].message
+        messages.append(msg)  # type: ignore[arg-type]
 
-    result = _extract_json(response.text or "")
+        if not msg.tool_calls:
+            break
+
+        for tc in msg.tool_calls:
+            if tc.function.name == "search_web":
+                args = json.loads(tc.function.arguments)
+                result = search_fn(args.get("query", ""))
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tc.id,
+                    "content": result,
+                })
+
+    final_content = msg.content or ""
+    result = _extract_json(final_content)
     if not result.get("script"):
         raise ValueError(f"Empty script returned by model for slot {slot.id!r} — will retry")
     return result
 
 
 def process_theme(thematique: str, queries: list[str], slots: list[Slot]) -> list[Slot]:
-    config.require_key("GOOGLE_API_KEY", config.GOOGLE_API_KEY)
+    config.require_key("OPENAI_API_KEY", config.OPENAI_API_KEY)
     config.require_key("TAVILY_API_KEY", config.TAVILY_API_KEY)
 
     tavily = TavilyClient(api_key=config.TAVILY_API_KEY)

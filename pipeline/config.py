@@ -23,8 +23,8 @@ LOGS_DIR = _ROOT / "logs"
 
 TIMEZONE = os.getenv("TIMEZONE", "Europe/Paris")
 
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "")
 
