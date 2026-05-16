@@ -22,11 +22,11 @@ An AI-generated 24/7 radio station that runs fully autonomously. Every night a p
 ┌──────────────────────────────────────────────────────────┐
 │                  Nightly Pipeline  (00:00)                │
 │                                                          │
-│  Orchestrator  (GPT-4o)                                  │
+│  Orchestrator  (gpt-5-mini)                                  │
 │    └─ generates targeted search queries per theme        │
 │                                                          │
 │  Theme Agents  (parallel)                                │
-│    └─ Tavily web search → GPT-4o script writing          │
+│    └─ Tavily web search → gpt-5-mini script writing          │
 │         └─ writes sujet + script → programme.json        │
 │                                                          │
 │  Media Agent   (fal.ai flux/schnell)                     │
