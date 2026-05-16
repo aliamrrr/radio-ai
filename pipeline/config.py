@@ -20,6 +20,7 @@ MEDIA_DIR = Path(os.getenv("MEDIA_DIR", str(_ROOT / "media")))
 IMAGES_DIR = MEDIA_DIR / "images"
 AUDIO_DIR = MEDIA_DIR / "audio"
 LOGS_DIR = _ROOT / "logs"
+RADIO_ASSETS_DIR = Path(os.getenv("RADIO_ASSETS_DIR", str(_ROOT.parent / "programme_radio")))
 
 TIMEZONE = os.getenv("TIMEZONE", "Europe/Paris")
 
@@ -38,7 +39,8 @@ FAL_PROMPT_PATH = Path(os.getenv("FAL_PROMPT_PATH", str(_ROOT.parent / "prompts"
 _raw_voice_map = os.getenv(
     "VOICE_MAP",
     "Claire=voice_fr_female_1,Marc=voice_fr_male_1,Léa=voice_fr_female_2,"
-    "Sofia=voice_fr_female_3,Tom=voice_fr_male_2,Inès=voice_fr_female_4,Hugo=voice_fr_male_3",
+    "Sofia=voice_fr_female_3,Tom=voice_fr_male_2,Inès=voice_fr_female_4,Hugo=voice_fr_male_3,"
+    "Yanis=voice_fr_male_4,Emma=voice_fr_female_5",
 )
 VOICE_MAP: dict[str, str] = dict(
     pair.split("=", 1) for pair in _raw_voice_map.split(",") if "=" in pair

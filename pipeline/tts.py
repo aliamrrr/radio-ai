@@ -131,15 +131,15 @@ def _parse_dialogue_lines(script: str) -> list[tuple[str, str]]:
 # ── Main entrypoint ───────────────────────────────────────────────────────────
 
 def synthesize_slot(slot: Slot, use_stub: bool = False) -> Slot:
-    output_path = config.AUDIO_DIR / f"{slot.id}.mp3"
+    output_path = config.AUDIO_DIR / f"{slot.id}_raw.mp3"
     tmp_path = output_path.with_suffix(".tmp.mp3")
     script = slot.script or ""
 
     if use_stub or config._is_placeholder(config.GRADIUM_API_KEY):
         logger.warning(f"[tts] GRADIUM_API_KEY not set — silent stub for {slot.id}")
-        tmp_path.write_bytes(_generate_silent_mp3(slot.duration_sec))
+        tmp_path.write_bytes(_generate_silent_mp3(slot.duration_int or 60))
         tmp_path.replace(output_path)
-        return slot.model_copy(update={"audio_path": f"audio/{slot.id}.mp3"})
+        return slot.model_copy(update={"audio_path": f"audio/{slot.id}_raw.mp3"})
 
     try:
         if slot.type_script in ("dialogue", "debate"):
@@ -177,8 +177,8 @@ def synthesize_slot(slot: Slot, use_stub: bool = False) -> Slot:
 
     except Exception as exc:
         logger.error(f"[tts] Failed for {slot.id}: {exc} — silent fallback")
-        tmp_path.write_bytes(_generate_silent_mp3(slot.duration_sec))
+        tmp_path.write_bytes(_generate_silent_mp3(slot.duration_int or 60))
 
     tmp_path.replace(output_path)
-    logger.info(f"[tts] Saved: audio/{slot.id}.mp3")
-    return slot.model_copy(update={"audio_path": f"audio/{slot.id}.mp3"})
+    logger.info(f"[tts] Saved: audio/{slot.id}_raw.mp3")
+    return slot.model_copy(update={"audio_path": f"audio/{slot.id}_raw.mp3"})

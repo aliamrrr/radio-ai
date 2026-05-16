@@ -1,4 +1,6 @@
 openai>=1.30.0
+pydub>=0.25.1
+imageio-ffmpeg>=0.4.9
 tavily-python>=0.3.0
 pydantic>=2.7.0
 python-dotenv>=1.0.0
