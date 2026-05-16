@@ -21,6 +21,8 @@ import { AlertBadge } from "@/components/ui/AlertBadge";
 
 type Mode = "live" | "replay";
 
+const MUSIC_COVER = "music/ChatGPT Image 16 mai 2026, 17_57_27.png";
+
 function useClock() {
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
@@ -83,15 +85,19 @@ export default function RadioPage() {
   const isOnAir = !!currentLiveSlot;
 
   const handleSlotEnded = useCallback(() => {
+    // Live mode is clock-driven — let getCurrentSlot pick the next slot naturally.
+    // Only auto-advance in replay mode.
+    if (mode === "live") return;
     if (!activeSlot || programme.length === 0) return;
     const idx = programme.findIndex((s) => s.id === activeSlot.id);
     const next = programme[idx + 1] ?? programme[0];
     setReplaySlot(next);
-    setMode("replay");
-  }, [activeSlot, programme]);
+  }, [mode, activeSlot, programme]);
 
-  const ip = activeSlot?.image_path;
-  const coverSrc = ip ? (ip.startsWith("http") ? ip : `/api/media/${ip}`) : null;
+  const ip = activeSlot?.image_path ?? (activeSlot?.type_script === "music" ? MUSIC_COVER : null);
+  const coverSrc = ip
+    ? (ip.startsWith("http") ? ip : `/api/media/${ip.split("/").map(encodeURIComponent).join("/")}`)
+    : null;
 
   return (
     <div className="min-h-screen bg-[#f0f0f2]">
@@ -106,7 +112,7 @@ export default function RadioPage() {
               <Radio className="w-4 h-4 text-white" />
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="font-display tracking-tight text-gray-900 text-xl">AI Radio</span>
+              <span className="font-display tracking-tight text-gray-900 text-xl">Next Radio</span>
               <span className="text-gray-400 font-semibold text-xs uppercase tracking-widest">24/7</span>
             </div>
           </div>

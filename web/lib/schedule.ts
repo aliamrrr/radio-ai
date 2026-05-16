@@ -1,14 +1,18 @@
-import { toZonedTime } from "date-fns-tz";
+import { toZonedTime, fromZonedTime } from "date-fns-tz";
 import type { Programme, Slot } from "./types";
 
 const TIMEZONE = "Europe/Paris";
 
 export function parseSlotStart(slot: Slot, referenceDate: Date): Date {
+  // Get date components in Paris timezone (getFullYear/Month/Date reflect Paris local values)
   const zoned = toZonedTime(referenceDate, TIMEZONE);
   const [hours, minutes] = slot.start_time.split(":").map(Number);
-  const slotDate = new Date(zoned);
-  slotDate.setHours(hours, minutes, 0, 0);
-  return slotDate;
+  // Build a "Paris local" datetime then convert back to UTC — works regardless of machine TZ
+  const parisLocal = new Date(
+    zoned.getFullYear(), zoned.getMonth(), zoned.getDate(),
+    hours, minutes, 0, 0
+  );
+  return fromZonedTime(parisLocal, TIMEZONE);
 }
 
 function getSlotEnd(slot: Slot, start: Date): Date {

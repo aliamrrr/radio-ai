@@ -44,13 +44,11 @@ export default function NowOnAir({ slot, isLive, nextSlotTime, onShowScript }: P
         </span>
       </div>
 
-      <h2 className="font-display text-base sm:text-lg lg:text-xl tracking-tight text-gray-900 leading-[1.15] text-balance">
-        {slot.sujet ?? (
-          <span className="text-gray-300 italic text-2xl font-medium">
-            Generating…
-          </span>
-        )}
-      </h2>
+      {slot.sujet && (
+        <h2 className="font-display text-base sm:text-lg lg:text-xl tracking-tight text-gray-900 leading-[1.15] text-balance">
+          {slot.sujet}
+        </h2>
+      )}
 
       <div className="flex items-center gap-2 flex-wrap">
         {slot.noms.map((name, i) => (

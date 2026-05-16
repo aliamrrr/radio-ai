@@ -86,7 +86,7 @@ export default function Player({ slot, seekTo, isLive, autoplay = false, onEnded
       audio.addEventListener("loadedmetadata", onMeta, { once: true });
       return () => audio.removeEventListener("loadedmetadata", onMeta);
     }
-  }, [slot?.id, audioSrc, seekTo, isLive, autoplay]);
+  }, [slot?.id, audioSrc, autoplay, isLive, seekTo]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -193,11 +193,6 @@ export default function Player({ slot, seekTo, isLive, autoplay = false, onEnded
         <Volume2 className="w-4 h-4 text-gray-300 shrink-0" />
       </div>
 
-      {!audioSrc && (
-        <p className="text-xs text-gray-400 italic">
-          Audio unavailable — generating…
-        </p>
-      )}
     </div>
   );
 }

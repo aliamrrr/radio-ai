@@ -1,4 +1,4 @@
-export type ScriptType = "presentation" | "dialogue" | "story" | "debate";
+export type ScriptType = "presentation" | "dialogue" | "story" | "debate" | "analysis" | "daily recap" | "music";
 
 export interface Slot {
   id: string;
