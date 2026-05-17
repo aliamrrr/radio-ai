@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import os
 import random
+import shutil
 import subprocess
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -18,7 +21,6 @@ logger = get_logger(__name__)
 _FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
 AudioSegment.converter = _FFMPEG
 
-# Map thematique → intro filename (handles space vs underscore mismatches)
 _INTRO_MAP: dict[str, str] = {
     "international news": "international news_intro.mp3",
     "tech & ai":          "tech & AI_intro.mp3",
@@ -29,9 +31,12 @@ _INTRO_MAP: dict[str, str] = {
     "music":              "music_intro.mp3",
 }
 
+# Safety cap: prevents unbounded memory growth when concatenating audio
+_MAX_LOOP_ITER = 200
+_MAX_GAP_SEC = 1800  # 30 min max gap fill
+
 
 def _mp3(path: Path) -> AudioSegment:
-    """Decode MP3 via bundled ffmpeg → AudioSegment. No system ffprobe needed."""
     cmd = [
         _FFMPEG, "-v", "error", "-i", str(path),
         "-f", "s16le", "-acodec", "pcm_s16le", "-ac", "1", "-ar", "22050", "pipe:1",
@@ -43,12 +48,10 @@ def _mp3(path: Path) -> AudioSegment:
 
 
 def _resolve_asset(relative: str) -> Path:
-    """Resolve a relative asset path from programme JSON, with flexible name matching."""
     base = config.RADIO_ASSETS_DIR
     direct = base / relative
     if direct.exists():
         return direct
-    # Flexible: compare stems normalized (lower, underscores→spaces)
     folder = base / Path(relative).parent
     target = Path(relative).stem.lower().replace("_", " ")
     for f in folder.glob("*.mp3"):
@@ -64,11 +67,25 @@ def _intro_path(thematique: str) -> Path | None:
     p = config.RADIO_ASSETS_DIR / "intros_songs" / filename
     if p.exists():
         return p
-    # Fallback: glob
     for f in (config.RADIO_ASSETS_DIR / "intros_songs").glob("*.mp3"):
         if thematique.lower().split()[0] in f.name.lower():
             return f
     return None
+
+
+def _export_atomic(segment: AudioSegment, dest: Path, bitrate: str = "128k") -> None:
+    """Export AudioSegment to dest atomically via a temp file."""
+    tmp_fd, tmp_name = tempfile.mkstemp(suffix=".mp3", dir=str(dest.parent))
+    try:
+        os.close(tmp_fd)
+        segment.export(tmp_name, format="mp3", bitrate=bitrate)
+        shutil.move(tmp_name, str(dest))
+    except Exception:
+        try:
+            os.unlink(tmp_name)
+        except OSError:
+            pass
+        raise
 
 
 def merge_show_audio(slot: Slot) -> Slot:
@@ -112,7 +129,7 @@ def merge_show_audio(slot: Slot) -> Slot:
         except FileNotFoundError:
             outro_p = intro_p
     else:
-        outro_p = intro_p  # same as intro by default
+        outro_p = intro_p
 
     if outro_p:
         seg = _mp3(outro_p)
@@ -126,12 +143,21 @@ def merge_show_audio(slot: Slot) -> Slot:
         final += s
 
     out = config.AUDIO_DIR / f"{slot.id}.mp3"
-    final.export(str(out), format="mp3", bitrate="128k")
+    _export_atomic(final, out)
     total = int(len(final) / 1000)
     logger.info(f"[audio] {slot.id} -> {out.name}  total={total}s")
 
+    from pipeline import storage  # deferred import
+    audio_key = f"audio/{slot.id}.mp3"
+    audio_path: str = audio_key
+    if storage.is_configured():
+        try:
+            audio_path = storage.upload_file(out, audio_key)
+        except Exception as exc:
+            logger.error(f"[audio] R2 upload failed for {slot.id}: {exc}", exc_info=True)
+
     return slot.model_copy(update={
-        "audio_path":         f"audio/{slot.id}.mp3",
+        "audio_path":         audio_path,
         "intro_duration_sec": intro_dur,
         "outro_duration_sec": outro_dur,
         "duration_sec":       total,
@@ -139,9 +165,7 @@ def merge_show_audio(slot: Slot) -> Slot:
 
 
 def fill_music_gap(slot: Slot, gap_sec: int) -> Slot:
-    """
-    Pick a random overlap song, loop/trim it to gap_sec, export as {id}.mp3.
-    """
+    """Pick a random overlap song, loop/trim it to gap_sec, export as {id}.mp3."""
     if gap_sec <= 0:
         logger.warning(f"[audio] {slot.id}: gap_sec={gap_sec}, nothing to fill")
         return slot
@@ -156,7 +180,12 @@ def fill_music_gap(slot: Slot, gap_sec: int) -> Slot:
     logger.info(f"[audio] {slot.id} gap={gap_sec}s  using {chosen.name}")
 
     music = _mp3(chosen)
+    iterations = 0
     while len(music) < gap_sec * 1000:
+        iterations += 1
+        if iterations >= _MAX_LOOP_ITER:
+            logger.warning(f"[audio] {slot.id}: hit loop cap ({_MAX_LOOP_ITER}), truncating")
+            break
         music += _mp3(chosen)
 
     music = music[: gap_sec * 1000]
@@ -164,11 +193,20 @@ def fill_music_gap(slot: Slot, gap_sec: int) -> Slot:
         music = music.fade_out(min(3000, len(music) // 2))
 
     out = config.AUDIO_DIR / f"{slot.id}.mp3"
-    music.export(str(out), format="mp3", bitrate="128k")
+    _export_atomic(music, out)
     logger.info(f"[audio] {slot.id} -> {out.name}  ({gap_sec}s)")
 
+    from pipeline import storage  # deferred import
+    audio_key = f"audio/{slot.id}.mp3"
+    audio_path: str = audio_key
+    if storage.is_configured():
+        try:
+            audio_path = storage.upload_file(out, audio_key)
+        except Exception as exc:
+            logger.error(f"[audio] R2 upload failed for {slot.id}: {exc}", exc_info=True)
+
     return slot.model_copy(update={
-        "audio_path":        f"audio/{slot.id}.mp3",
+        "audio_path":        audio_path,
         "duration_sec":      gap_sec,
         "last_generated_at": datetime.now(timezone.utc),
     })
@@ -177,8 +215,7 @@ def fill_music_gap(slot: Slot, gap_sec: int) -> Slot:
 def process_all_audio(slots: list[Slot]) -> list[Slot]:
     """
     For each show slot: merge intro + raw_script + outro.
-    Automatically detect gaps between consecutive shows and fill them with
-    random overlap songs — no music slots needed in programme.json.
+    Automatically detect gaps and fill them with random overlap songs.
     Returns original slots + auto-generated gap slots, sorted by start time.
     """
     show_slots = sorted(
@@ -196,7 +233,6 @@ def process_all_audio(slots: list[Slot]) -> list[Slot]:
             show_end_sec = slot.start_seconds() + merged.duration_int
             gap_sec = nxt.start_seconds() - show_end_sec
 
-            _MAX_GAP_SEC = 1800  # cap at 30 min to avoid huge loop files
             if 2 < gap_sec <= _MAX_GAP_SEC:
                 h, m = divmod(show_end_sec // 60, 60)
                 gap_time = f"{h:02d}:{m:02d}"
@@ -212,6 +248,6 @@ def process_all_audio(slots: list[Slot]) -> list[Slot]:
                 result.append(fill_music_gap(gap_slot, gap_sec))
                 logger.info(f"[audio] auto gap {gap_time} -> {gap_sec}s filler inserted")
             elif gap_sec > _MAX_GAP_SEC:
-                logger.warning(f"[audio] gap {gap_sec}s > 30min — skipping gap fill")
+                logger.warning(f"[audio] gap {gap_sec}s > {_MAX_GAP_SEC}s — skipping gap fill")
 
     return result

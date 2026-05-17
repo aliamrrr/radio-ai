@@ -1,35 +1,77 @@
 from __future__ import annotations
 
+import re
 from datetime import datetime
-from typing import Any, Optional, Union
+from typing import Optional, Union
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
+
+_SAFE_ID = re.compile(r'^[a-zA-Z0-9_\-]+$')
+_VALID_TIME = re.compile(r'^\d{2}:\d{2}$')
+
+VALID_SCRIPT_TYPES = frozenset({
+    "presentation", "dialogue", "story", "debate",
+    "analysis", "daily recap", "music",
+})
+VALID_LANGS = frozenset({"fr", "en", "es", "de", "it", "pt"})
 
 
 class Slot(BaseModel):
-    id: str
-    start_time: str
+    id: str = Field(..., max_length=50)
+    start_time: str = Field(..., max_length=5)
     duration_sec: Union[int, str] = 0
-    thematique: str
-    nb_intervenants: int = 0
-    noms: list[str] = []
-    langue: str = "fr"
-    type_script: str
+    thematique: str = Field(..., max_length=100)
+    nb_intervenants: int = Field(0, ge=0, le=10)
+    noms: list[str] = Field(default_factory=list)
+    langue: str = Field("fr", max_length=10)
+    type_script: str = Field(..., max_length=50)
 
-    sujet: Optional[str] = None
-    script: Optional[str] = None
-    image_path: Optional[str] = None
-    audio_path: Optional[str] = None
+    sujet: Optional[str] = Field(None, max_length=500)
+    script: Optional[str] = Field(None, max_length=50_000)
+    image_path: Optional[str] = Field(None, max_length=2000)
+    audio_path: Optional[str] = Field(None, max_length=500)
 
-    intro_audio_path: Optional[str] = None
-    outro_audio_path: Optional[str] = None
-    intro_image_path: Optional[str] = None
-    outro_image_path: Optional[str] = None
+    intro_audio_path: Optional[str] = Field(None, max_length=500)
+    outro_audio_path: Optional[str] = Field(None, max_length=500)
+    intro_image_path: Optional[str] = Field(None, max_length=500)
+    outro_image_path: Optional[str] = Field(None, max_length=500)
     intro_duration_sec: Optional[int] = None
     outro_duration_sec: Optional[int] = None
 
-    title: Optional[str] = None
-    last_generated_at: Optional[Any] = None
+    title: Optional[str] = Field(None, max_length=200)
+    last_generated_at: Optional[datetime] = None
+
+    @field_validator("id")
+    @classmethod
+    def validate_id(cls, v: str) -> str:
+        if not _SAFE_ID.match(v):
+            raise ValueError(f"id contains invalid characters: {v!r}")
+        return v
+
+    @field_validator("start_time")
+    @classmethod
+    def validate_start_time(cls, v: str) -> str:
+        if not _VALID_TIME.match(v):
+            raise ValueError(f"start_time must be HH:MM, got: {v!r}")
+        h, m = int(v[:2]), int(v[3:])
+        if not (0 <= h <= 23 and 0 <= m <= 59):
+            raise ValueError(f"start_time out of range: {v!r}")
+        return v
+
+    @field_validator("type_script")
+    @classmethod
+    def validate_type_script(cls, v: str) -> str:
+        if v not in VALID_SCRIPT_TYPES:
+            raise ValueError(f"type_script {v!r} not in allowed set {VALID_SCRIPT_TYPES}")
+        return v
+
+    @field_validator("noms", mode="before")
+    @classmethod
+    def validate_noms(cls, v: list) -> list:
+        items = v or []
+        if len(items) > 10:
+            raise ValueError("noms must have at most 10 entries")
+        return [str(n)[:50] for n in items]
 
     @field_validator("duration_sec", mode="before")
     @classmethod

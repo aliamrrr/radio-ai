@@ -21,7 +21,23 @@ import { AlertBadge } from "@/components/ui/AlertBadge";
 
 type Mode = "live" | "replay";
 
-const MUSIC_COVER = "music/ChatGPT Image 16 mai 2026, 17_57_27.png";
+const MUSIC_COVER = "music/music_cover.png";
+
+const ALLOWED_IMAGE_HOSTS = new Set(["fal.media", "fal.run"]);
+
+/** Accept only https URLs from whitelisted hosts, or local paths. */
+function isSafeImageUrl(url: string): boolean {
+  if (!url.startsWith("http://") && !url.startsWith("https://")) return true; // local path
+  try {
+    const u = new URL(url);
+    if (u.protocol !== "https:") return false;
+    const parts = u.hostname.split(".");
+    const apex = parts.slice(-2).join(".");
+    return ALLOWED_IMAGE_HOSTS.has(apex);
+  } catch {
+    return false;
+  }
+}
 
 function useClock() {
   const [now, setNow] = useState<Date | null>(null);
@@ -64,8 +80,13 @@ export default function RadioPage() {
   const fetchProgramme = useCallback(async () => {
     try {
       const res = await fetch("/api/programme");
-      if (res.ok) setProgramme(await res.json());
-    } catch {}
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) setProgramme(data);
+      }
+    } catch {
+      // Network error — keep existing programme data
+    }
   }, []);
 
   useEffect(() => { fetchProgramme(); }, [fetchProgramme]);
@@ -95,7 +116,7 @@ export default function RadioPage() {
   }, [mode, activeSlot, programme]);
 
   const ip = activeSlot?.image_path ?? (activeSlot?.type_script === "music" ? MUSIC_COVER : null);
-  const coverSrc = ip
+  const coverSrc = ip && isSafeImageUrl(ip)
     ? (ip.startsWith("http") ? ip : `/api/media/${ip.split("/").map(encodeURIComponent).join("/")}`)
     : null;
 

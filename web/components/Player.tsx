@@ -67,7 +67,12 @@ export default function Player({ slot, seekTo, isLive, autoplay = false, onEnded
   const [duration, setDuration] = useState(0);
   const prevSlotId = useRef<string | null>(null);
 
-  const audioSrc = slot?.audio_path ? `/api/media/${slot.audio_path}` : null;
+  // audio_path is either a full R2/CDN URL (prod) or a relative path served via /api/media (dev)
+  const audioSrc = slot?.audio_path
+    ? slot.audio_path.startsWith("http")
+      ? slot.audio_path
+      : `/api/media/${slot.audio_path}`
+    : null;
 
   useEffect(() => {
     const audio = audioRef.current;

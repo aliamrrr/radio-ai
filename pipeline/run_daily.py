@@ -1,40 +1,41 @@
 from __future__ import annotations
 
-# ── Global SSL bypass for corporate proxy that intercepts TLS ──────────────────
-import ssl as _ssl
-import urllib3 as _urllib3
+import os
 
-# Disable certificate verification at the ssl module level
-_ssl._create_default_https_context = _ssl._create_unverified_context
+# Load .env before anything else so SSL_NO_VERIFY is available here
+from dotenv import load_dotenv
+load_dotenv()
 
-# Suppress InsecureRequestWarning from urllib3
-_urllib3.disable_warnings(_urllib3.exceptions.InsecureRequestWarning)
+# ── Optional SSL bypass for corporate proxies that intercept TLS ───────────────
+# Enable ONLY via SSL_NO_VERIFY=true in .env. Never in production.
+if os.getenv("SSL_NO_VERIFY", "").lower() in ("1", "true", "yes"):
+    import ssl as _ssl
+    import urllib3 as _urllib3
 
-# Patch requests.HTTPAdapter so every request skips SSL verification
-import requests as _requests_mod
-_orig_adapter_send = _requests_mod.adapters.HTTPAdapter.send
-def _patched_adapter_send(self, request, **kwargs):
-    kwargs['verify'] = False
-    return _orig_adapter_send(self, request, **kwargs)
-_requests_mod.adapters.HTTPAdapter.send = _patched_adapter_send
+    _ssl._create_default_https_context = _ssl._create_unverified_context
+    _urllib3.disable_warnings(_urllib3.exceptions.InsecureRequestWarning)
 
-# Patch httpx.Client and httpx.AsyncClient to disable SSL verification globally
-import httpx as _httpx
-_orig_httpx_client_init = _httpx.Client.__init__
-def _patched_httpx_client_init(self, *args, **kwargs):
-    kwargs.setdefault('verify', False)
-    _orig_httpx_client_init(self, *args, **kwargs)
-_httpx.Client.__init__ = _patched_httpx_client_init
+    import requests as _requests_mod
+    _orig_adapter_send = _requests_mod.adapters.HTTPAdapter.send
+    def _patched_adapter_send(self, request, **kwargs):
+        kwargs["verify"] = False
+        return _orig_adapter_send(self, request, **kwargs)
+    _requests_mod.adapters.HTTPAdapter.send = _patched_adapter_send
 
-_orig_httpx_async_init = _httpx.AsyncClient.__init__
-def _patched_httpx_async_init(self, *args, **kwargs):
-    kwargs.setdefault('verify', False)
-    _orig_httpx_async_init(self, *args, **kwargs)
-_httpx.AsyncClient.__init__ = _patched_httpx_async_init
+    import httpx as _httpx
+    _orig_httpx_client_init = _httpx.Client.__init__
+    def _patched_httpx_client_init(self, *args, **kwargs):
+        kwargs.setdefault("verify", False)
+        _orig_httpx_client_init(self, *args, **kwargs)
+    _httpx.Client.__init__ = _patched_httpx_client_init
+
+    _orig_httpx_async_init = _httpx.AsyncClient.__init__
+    def _patched_httpx_async_init(self, *args, **kwargs):
+        kwargs.setdefault("verify", False)
+        _orig_httpx_async_init(self, *args, **kwargs)
+    _httpx.AsyncClient.__init__ = _patched_httpx_async_init
 
 import argparse
-import asyncio
-import json
 import shutil
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
@@ -47,7 +48,7 @@ from pipeline import media_agent, tts
 from pipeline.orchestrator import generate_queries
 from pipeline.schema import Slot
 from pipeline.theme_agent import process_theme
-from pipeline.utils import atomic_write_json, ensure_dirs, get_logger, load_json
+from pipeline.utils import atomic_write_json_and_upload, ensure_dirs, get_logger, load_json
 
 logger = get_logger(__name__)
 console = Console()
@@ -60,7 +61,7 @@ def load_programme() -> list[Slot]:
 
 def save_programme(slots: list[Slot]) -> None:
     data = [s.model_dump(mode="json") for s in slots]
-    atomic_write_json(config.PROGRAMME_PATH, data)
+    atomic_write_json_and_upload(config.PROGRAMME_PATH, data)
 
 
 def seed_mock(slots: list[Slot]) -> list[Slot]:
@@ -224,7 +225,6 @@ def main() -> None:
     if args.reset_schedule:
         src = config.RADIO_ASSETS_DIR / "programme.exemple.json"
         if src.exists():
-            import shutil
             shutil.copy(src, config.PROGRAMME_PATH)
             console.print(f"[green]Schedule reset from {src}[/green]")
         else:

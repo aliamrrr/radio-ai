@@ -56,7 +56,7 @@ def _submit_and_poll(model: str, prompt: str, headers: dict) -> str:
     """Submit image job to fal.ai queue and return the CDN image URL."""
     payload = _build_payload(model, prompt)
 
-    with httpx.Client(timeout=30, verify=False) as client:
+    with httpx.Client(timeout=30, verify=not config.SSL_NO_VERIFY) as client:
         resp = client.post(f"https://queue.fal.run/{model}", json=payload, headers=headers)
         resp.raise_for_status()
         queue_data = resp.json()
@@ -64,7 +64,7 @@ def _submit_and_poll(model: str, prompt: str, headers: dict) -> str:
         result_url = queue_data["response_url"]
 
     for _ in range(90):
-        with httpx.Client(timeout=15, verify=False) as client:
+        with httpx.Client(timeout=15, verify=not config.SSL_NO_VERIFY) as client:
             sr = client.get(status_url, headers=headers, params={"logs": 0})
             sr.raise_for_status()
             status = sr.json().get("status", "")
@@ -76,7 +76,7 @@ def _submit_and_poll(model: str, prompt: str, headers: dict) -> str:
     else:
         raise RuntimeError(f"fal.ai job timed out after 180s (model={model})")
 
-    with httpx.Client(timeout=15, verify=False) as client:
+    with httpx.Client(timeout=15, verify=not config.SSL_NO_VERIFY) as client:
         rr = client.get(result_url, headers=headers)
         rr.raise_for_status()
         result = rr.json()

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import io
+import os
 import re
-import struct
+import shutil
+import tempfile
 
 import httpx
 import lameenc
@@ -27,10 +29,9 @@ _OPENAI_VOICES = {"alloy", "ash", "ballad", "coral", "echo", "fable", "nova", "o
 # ── Audio helpers ─────────────────────────────────────────────────────────────
 
 def _wav_bytes_to_array(wav_bytes: bytes) -> tuple[np.ndarray, int]:
-    """Return (int16 samples, samplerate). Always mono int16."""
     data, sr = sf.read(io.BytesIO(wav_bytes), dtype="int16", always_2d=False)
     if data.ndim == 2:
-        data = data.mean(axis=1).astype(np.int16)  # stereo → mono
+        data = data.mean(axis=1).astype(np.int16)
     return data, sr
 
 
@@ -55,12 +56,14 @@ def _generate_silent_mp3(duration_sec: int, samplerate: int = 22050) -> bytes:
     return _encode_mp3(samples, samplerate)
 
 
-# ── Gradium API ───────────────────────────────────────────────────────────────
+# ── TTS API calls ─────────────────────────────────────────────────────────────
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
 def _call_openai_tts(text: str, voice: str) -> bytes:
-    """OpenAI TTS — returns raw WAV bytes."""
-    client = OpenAI(api_key=config.OPENAI_API_KEY, http_client=httpx.Client(verify=False))
+    client = OpenAI(
+        api_key=config.OPENAI_API_KEY,
+        http_client=httpx.Client(verify=not config.SSL_NO_VERIFY),
+    )
     response = client.audio.speech.create(
         model="tts-1",
         voice=voice,  # type: ignore[arg-type]
@@ -72,7 +75,6 @@ def _call_openai_tts(text: str, voice: str) -> bytes:
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
 def _call_gradium_tts(text: str, voice_id: str) -> bytes:
-    """POST to Gradium TTS. Returns raw WAV bytes."""
     headers = {
         "x-api-key": config.GRADIUM_API_KEY,
         "Content-Type": "application/json",
@@ -83,14 +85,13 @@ def _call_gradium_tts(text: str, voice_id: str) -> bytes:
         "output_format": "wav",
         "only_audio": True,
     }
-    with httpx.Client(timeout=120, verify=False) as client:
+    with httpx.Client(timeout=120, verify=not config.SSL_NO_VERIFY) as client:
         resp = client.post(_TTS_URL, json=payload, headers=headers)
         resp.raise_for_status()
         return resp.content
 
 
 def _call_tts(text: str, voice: str) -> bytes:
-    """Route to OpenAI TTS or Gradium based on voice identifier."""
     if voice in _OPENAI_VOICES:
         return _call_openai_tts(text, voice)
     return _call_gradium_tts(text, voice)
@@ -113,8 +114,8 @@ def _chunk_text(text: str, max_chars: int = _MAX_TTS_CHARS) -> list[str]:
     chunks: list[str] = []
     current = ""
     for s in sentences:
-        # If a single sentence exceeds the limit, split on comma/semicolon
         if len(s) > max_chars:
+            # Fix ReDoS: use negated char class instead of .+ with lazy quantifier
             sub_parts = re.split(r'(?<=[,;])\s+', s)
             for part in sub_parts:
                 if len(current) + len(part) + 1 <= max_chars:
@@ -141,7 +142,8 @@ def _parse_dialogue_lines(script: str) -> list[tuple[str, str]]:
         line = line.strip()
         if not line:
             continue
-        match = re.match(r"^\[(.+?)\]\s*(.*)", line)
+        # Fix ReDoS: use [^\]]+ (negated char class) instead of .+? (lazy dot)
+        match = re.match(r"^\[([^\]]{1,100})\]\s*(.*)", line)
         if match:
             speaker, text = match.group(1).strip(), match.group(2).strip()
             if text:
@@ -152,24 +154,41 @@ def _parse_dialogue_lines(script: str) -> list[tuple[str, str]]:
     return lines
 
 
+# ── Atomic file write helper ──────────────────────────────────────────────────
+
+def _write_mp3_atomic(mp3_bytes: bytes, dest_path) -> None:
+    """Write bytes to a temp file then atomically move it to dest_path."""
+    tmp_fd, tmp_name = tempfile.mkstemp(suffix=".mp3", dir=str(dest_path.parent))
+    try:
+        with os.fdopen(tmp_fd, "wb") as f:
+            f.write(mp3_bytes)
+            f.flush()
+            os.fsync(f.fileno())
+        shutil.move(tmp_name, str(dest_path))
+    except Exception:
+        try:
+            os.unlink(tmp_name)
+        except OSError:
+            pass
+        raise
+
+
 # ── Main entrypoint ───────────────────────────────────────────────────────────
 
 def synthesize_slot(slot: Slot, use_stub: bool = False) -> Slot:
     output_path = config.AUDIO_DIR / f"{slot.id}_raw.mp3"
-    tmp_path = output_path.with_suffix(".tmp.mp3")
     script = slot.script or ""
 
     if use_stub or config._is_placeholder(config.OPENAI_API_KEY):
-        logger.warning(f"[tts] GRADIUM_API_KEY not set — silent stub for {slot.id}")
-        tmp_path.write_bytes(_generate_silent_mp3(slot.duration_int or 60))
-        tmp_path.replace(output_path)
+        logger.warning(f"[tts] API key not set — silent stub for {slot.id}")
+        _write_mp3_atomic(_generate_silent_mp3(slot.duration_int or 60), output_path)
         return slot.model_copy(update={"audio_path": f"audio/{slot.id}_raw.mp3"})
 
     try:
         if slot.type_script in ("dialogue", "debate"):
             lines = _parse_dialogue_lines(script)
             segments: list[np.ndarray] = []
-            samplerate = 22050  # will be overwritten by first real segment
+            samplerate = 22050
 
             for speaker, text in lines:
                 voice = _get_voice(speaker)
@@ -188,7 +207,7 @@ def synthesize_slot(slot: Slot, use_stub: bool = False) -> Slot:
             chunks = _chunk_text(script)
             logger.info(f"[tts] {slot.id} [{host}] {len(script)} chars -> {len(chunks)} chunks")
             samplerate = 22050
-            segments: list[np.ndarray] = []
+            segments = []
             for chunk in chunks:
                 wav_bytes = _call_tts(chunk, voice)
                 arr, samplerate = _wav_bytes_to_array(wav_bytes)
@@ -197,12 +216,20 @@ def synthesize_slot(slot: Slot, use_stub: bool = False) -> Slot:
             combined = np.concatenate(segments) if segments else np.zeros(0, dtype=np.int16)
             mp3_bytes = _encode_mp3(combined, samplerate)
 
-        tmp_path.write_bytes(mp3_bytes)
-
     except Exception as exc:
-        logger.error(f"[tts] Failed for {slot.id}: {exc} — silent fallback")
-        tmp_path.write_bytes(_generate_silent_mp3(slot.duration_int or 60))
+        logger.error(f"[tts] Failed for {slot.id}: {exc} — silent fallback", exc_info=True)
+        mp3_bytes = _generate_silent_mp3(slot.duration_int or 60)
 
-    tmp_path.replace(output_path)
+    _write_mp3_atomic(mp3_bytes, output_path)
     logger.info(f"[tts] Saved: audio/{slot.id}_raw.mp3")
-    return slot.model_copy(update={"audio_path": f"audio/{slot.id}_raw.mp3"})
+
+    # Upload raw audio to R2 if configured (final merge happens in audio_producer)
+    from pipeline import storage  # deferred import
+    audio_path = f"audio/{slot.id}_raw.mp3"
+    if storage.is_configured():
+        try:
+            storage.upload_file(output_path, audio_path)
+        except Exception as exc:
+            logger.error(f"[tts] R2 upload failed for {slot.id}: {exc}", exc_info=True)
+
+    return slot.model_copy(update={"audio_path": audio_path})
