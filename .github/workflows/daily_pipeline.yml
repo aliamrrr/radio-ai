@@ -56,7 +56,7 @@ jobs:
           FAL_API_KEY: ${{ secrets.FAL_API_KEY }}
           GRADIUM_API_KEY: ${{ secrets.GRADIUM_API_KEY }}
           GRADIUM_BASE_URL: ${{ secrets.GRADIUM_BASE_URL }}
-          VOICE_MAP: "Claire=voice_fr_female_1,Marc=voice_fr_male_1,Léa=voice_fr_female_2,Sofia=voice_fr_female_3,Tom=voice_fr_male_2,Inès=voice_fr_female_4,Hugo=voice_fr_male_3,Yanis=voice_fr_male_4,Emma=voice_fr_female_5"
+          VOICE_MAP: "Claire=nova,Marc=onyx,Léa=shimmer,Sofia=alloy,Tom=echo,Inès=nova,Hugo=fable,Yanis=onyx,Emma=shimmer"
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
