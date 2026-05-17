@@ -1,7 +1,7 @@
 [
   {
     "id": "1600_news",
-    "start_time": "16:00",
+    "start_time": "12:00",
     "duration_sec": 439,
     "thematique": "international news",
     "nb_intervenants": 1,
@@ -25,7 +25,7 @@
   },
   {
     "id": "gap_1607",
-    "start_time": "16:07",
+    "start_time": "12:07",
     "duration_sec": 41,
     "thematique": "music",
     "nb_intervenants": 0,
@@ -47,7 +47,7 @@
   },
   {
     "id": "1608_sport",
-    "start_time": "16:08",
+    "start_time": "12:08",
     "duration_sec": 394,
     "thematique": "sport",
     "nb_intervenants": 2,
@@ -72,7 +72,7 @@
   },
   {
     "id": "gap_1614",
-    "start_time": "16:14",
+    "start_time": "12:14",
     "duration_sec": 926,
     "thematique": "music",
     "nb_intervenants": 0,
@@ -94,7 +94,7 @@
   },
   {
     "id": "1630_tech",
-    "start_time": "16:30",
+    "start_time": "12:30",
     "duration_sec": 668,
     "thematique": "tech & AI",
     "nb_intervenants": 2,
@@ -119,7 +119,7 @@
   },
   {
     "id": "gap_1641",
-    "start_time": "16:41",
+    "start_time": "12:41",
     "duration_sec": 1132,
     "thematique": "music",
     "nb_intervenants": 0,
@@ -141,7 +141,7 @@
   },
   {
     "id": "1700_culture",
-    "start_time": "17:00",
+    "start_time": "13:00",
     "duration_sec": 621,
     "thematique": "culture",
     "nb_intervenants": 2,
@@ -166,7 +166,7 @@
   },
   {
     "id": "gap_1710",
-    "start_time": "17:10",
+    "start_time": "13:10",
     "duration_sec": 99,
     "thematique": "music",
     "nb_intervenants": 0,
@@ -188,7 +188,7 @@
   },
   {
     "id": "1712_lifestyle",
-    "start_time": "17:12",
+    "start_time": "13:12",
     "duration_sec": 502,
     "thematique": "lifestyle",
     "nb_intervenants": 2,
@@ -213,7 +213,7 @@
   },
   {
     "id": "gap_1720",
-    "start_time": "17:20",
+    "start_time": "13:20",
     "duration_sec": 1178,
     "thematique": "music",
     "nb_intervenants": 0,
@@ -235,7 +235,7 @@
   },
   {
     "id": "1740_sport",
-    "start_time": "17:40",
+    "start_time": "13:40",
     "duration_sec": 485,
     "thematique": "sport",
     "nb_intervenants": 1,
@@ -259,7 +259,7 @@
   },
   {
     "id": "gap_1748",
-    "start_time": "17:48",
+    "start_time": "13:48",
     "duration_sec": 715,
     "thematique": "music",
     "nb_intervenants": 0,
@@ -281,7 +281,7 @@
   },
   {
     "id": "1800_news",
-    "start_time": "18:00",
+    "start_time": "14:00",
     "duration_sec": 437,
     "thematique": "international news",
     "nb_intervenants": 1,
@@ -290,9 +290,9 @@
     ],
     "langue": "en",
     "type_script": "presentation",
-    "sujet": "International News Update",
-    "script": "Good evening, I’m Claire, and this is your international news update.\n\nWe begin in Gaza, where Israel says it has killed the leader of Hamas’ military wing, describing him as one of the key architects of the October 7th attacks that triggered the war. The claim, if confirmed, would mark one of the most significant strikes in the conflict in months. But the broader picture remains grim: the fighting continues, civilians are still bearing the brunt, and there is still no clear path to a lasting ceasefire. For families in Gaza and across the region, headlines about military gains do little to ease the daily reality of displacement, fear, and loss.\n\nIn Europe, all eyes are on Vienna, where the Eurovision Song Contest has reached its grand final. It’s a night built around glitter, spectacle, and big pop hooks, but this year it’s also become a stage for politics. Tight security and rainy weather have not dampened the enthusiasm of fans, yet outside the venue, critics are making their opposition heard, especially over Israel’s participation. Eurovision has always promised an escape from the world’s troubles, but in 2026, the world has clearly followed it into the arena. Even so, the contest still delivers what it does best: a shared cultural moment watched across borders, languages, and generations.\n\nIn the Middle East, diplomatic tensions remain high well beyond the battlefield. Iran’s foreign minister says a lack of trust remains the biggest obstacle in negotiations with the United States over the nuclear issue. That distrust has become a defining feature of the relationship, with every statement carrying the weight of decades of suspicion, sanctions, and broken promises. The stakes are enormous. Any diplomatic breakthrough could reshape security across the region, but any miscalculation could do the opposite. For now, the talks remain fragile, and the atmosphere is one of caution rather than optimism.\n\nMeanwhile, in Africa, President Trump says an Islamic State group leader has been killed in a joint U.S.-Nigerian mission. According to his late-night social media post, the target was Abu Bakr al-Mainuki, whom he described as the group’s second in command globally. If the operation is confirmed, it would underscore the continued threat posed by extremist networks across the Sahel and beyond, as well as the importance of regional partnerships in counterterrorism efforts. But these missions also raise familiar questions: how durable are the gains, and what happens after the headlines fade? Groups like Islamic State have repeatedly shown an ability to adapt, disperse, and re-emerge in new forms.\n\nIn Europe again, another story is reminding us how deeply global politics can affect local communities. In a small Bavarian town, President Trump’s threat to withdraw U.S. troops from Germany has rattled residents who have long depended on the American military presence, not only for jobs and business, but for friendships built over decades. For many towns like this, the bases are more than strategic assets; they are part of the social fabric. The idea that they could be pulled away has sparked anxiety well beyond the gates of the installations themselves. It’s a vivid example of how decisions made in Washington can ripple into the lives of ordinary people thousands of miles away.\n\nAnd while there’s no shortage of conflict and diplomacy in the headlines today, there’s also a reminder that international news can still bring moments of shared culture and spectacle. Eurovision, for all its controversies, is a rare event that gets people talking across the continent and beyond. It’s a contest of songs, yes, but also of identity, image, and national pride. In a year defined by division, that kind of collective attention matters more than it might seem.\n\nElsewhere, climate change continues to cast a long shadow. Reuters reports that global fire outbreaks have hit a record high, with unprecedented heat extremes driving dangerous conditions in Africa, Asia, and other regions. The trend is alarming, and experts say conditions are likely to worsen. Fires are no longer isolated emergencies; they are part of a wider pattern of warming, drought, and ecological stress that is reshaping life in many parts of the world. The human cost is immediate, from destroyed homes to health risks and mass displacement. The longer-term cost is even harder to measure.\n\nSo tonight’s picture is one of a world moving on multiple fronts at once: war and diplomacy, security and spectacle, climate pressure and political uncertainty. The stories may be unfolding in different countries, but they’re connected by the same underlying truth: events in one corner of the globe rarely stay there.\n\nAnd that’s the latest from the international desk. I’m Claire. Thanks for listening.",
-    "image_path": "https://v3b.fal.media/files/b/0a9a73e9/dhFIHeDNWo5Su3JNGPMu5_Eci9BQ1M.png",
+    "sujet": "Bilan de la journée : retour sur les événements marquants",
+    "script": "Bonsoir, il est 18 heures. Je suis Claire pour le journal du soir sur AI Radio. La journée a été marquée par les retombées du sommet du G7 et les premières réactions des marchés financiers. En Europe, le Parlement européen a adopté en première lecture une directive sur la régulation de l'intelligence artificielle dans les services publics. Et du côté du sport, les demis de finale de la Ligue des Champions ont livré leur lot de surprises. Voici le détail.",
+    "image_path": "images/1800_news.png",
     "audio_path": "audio/1800_news.mp3",
     "intro_audio_path": "intros_songs/international_news_intro.mp3",
     "outro_audio_path": "intros_songs/international_news_intro.mp3",
@@ -301,11 +301,11 @@
     "intro_duration_sec": 69,
     "outro_duration_sec": 69,
     "title": null,
-    "last_generated_at": "2026-05-16T15:15:46.764680Z"
+    "last_generated_at": "2026-05-16T18:05:18.536780Z"
   },
   {
     "id": "gap_1807",
-    "start_time": "18:07",
+    "start_time": "14:07",
     "duration_sec": 163,
     "thematique": "music",
     "nb_intervenants": 0,
@@ -327,7 +327,7 @@
   },
   {
     "id": "1810_tech",
-    "start_time": "18:10",
+    "start_time": "14:10",
     "duration_sec": 638,
     "thematique": "tech & AI",
     "nb_intervenants": 1,
@@ -336,9 +336,9 @@
     ],
     "langue": "en",
     "type_script": "presentation",
-    "sujet": "Tech & AI: The week automation got real",
-    "script": "If you’ve been feeling that artificial intelligence is no longer a side story in tech, but the main plot, this week makes that impossible to ignore. What we’re seeing now is not just smarter chatbots or faster code generation. We’re seeing AI move into the operating system, into the office, into the car, into legal work, into security, and even into the balance sheets of the biggest companies on the planet. And that shift comes with a very real paradox: the more capable AI becomes, the more it seems to automate not only tasks, but entire business models, job functions, and expectations about how software should work.\n\nLet’s start with the big picture. Across the industry, companies are racing to embed AI into everything they already sell. Google is pushing Gemini deeper into Android and its consumer products, Anthropic is moving into legal services, Meta is reportedly building a more agentic assistant for consumers, and automotive companies like Rivian are adding AI copilots into vehicles. This is what an AI platform shift looks like in real time. It’s not one breakthrough. It’s a thousand integrations.\n\nAnd the new keyword here is “agentic.” That matters because traditional AI has mostly responded to prompts. Agentic AI is designed to do more than answer; it can act. It can draft, schedule, search, summarize, recommend, and in some cases initiate steps on your behalf. That sounds convenient, and often it is. But once AI starts operating across apps and devices, the question changes from “What can it say?” to “What can it do, and who is responsible when it does it badly?”\n\nGoogle’s latest Android direction is a perfect example of how this is changing consumer software. The company is moving toward a more AI-native Android experience, with features that make the phone feel less like a collection of apps and more like a proactive assistant. Tools like natural-language widget creation are especially interesting because they lower the barrier between intention and interface. Instead of learning where a feature lives, you just describe what you want. That’s a major usability leap.\n\nBut there’s another side to it. If software can be created by asking for it, then the value shifts from the app itself to the platform that mediates the request. That can empower users, but it can also squeeze smaller developers and niche tools that used to own specific workflows. AI is making software easier to use, but also harder to differentiate.\n\nGoogle’s new efforts around digital wellbeing also show that AI isn’t only about speed and productivity. Features designed to interrupt doomscrolling, force pauses, or protect users from distractions suggest that tech companies are starting to acknowledge a deeper truth: the problem is no longer just access to information, but over-access. When every app competes for attention, an AI system that helps you step back may be just as valuable as one that helps you move faster.\n\nSecurity, meanwhile, remains the quiet emergency running alongside all this innovation. The more AI gets embedded in devices and workflows, the more attractive the attack surface becomes. That’s why the latest Android security improvements, especially for users at higher risk such as journalists and activists, matter so much. Logging suspicious intrusion activity and tightening advanced protection are not glamorous features, but they are necessary ones. In the AI era, trust is part of the product.\n\nThen there’s the enterprise side, where AI is reshaping how companies invest and how they justify those investments. Reuters has been reporting that tech companies are increasingly tapping debt markets to fund AI and cloud expansion. That tells you something important: this is no longer just a software story, it’s a capital story. Building the infrastructure for AI requires enormous spending on data centers, networking, chips, cloud capacity, and talent. Companies are willing to borrow billions to keep up because they believe missing this wave would be more expensive than the debt itself.\n\nBut that spending comes with pressure. The Associated Press has highlighted how firms like Meta, Microsoft, Amazon, Block, and others are pairing AI investment with job cuts. The message is blunt: automation is being used to streamline operations, and in many cases, to make organizations leaner. That does not mean every layoff is caused by AI, but it does mean AI is increasingly part of the justification. Efficiency is the new corporate language, and AI is the engine behind it.\n\nThis is where the human story gets complicated. When companies say AI will make employees more productive, they often mean fewer people can do more work. That may be true. But for workers, “more productive” can also sound a lot like “more replaceable.” The challenge for business leaders is that efficiency gains may be real, but so are the social and organizational costs. If AI is used purely to cut labor without reinvesting in skills, trust, and new roles, the short-term savings could create long-term damage.\n\nAt the same time, the startup world is still betting big. New funds are being raised for AI, fintech, healthcare, and security. Investors clearly believe the next generation of breakout companies will be built on top of AI, not just around it. And that makes sense. Every major technology shift creates a new layer of companies: the infrastructure players, the workflow tools, the compliance specialists, the security vendors, the data platforms, the vertical AI products. We are still early enough that many of these categories are being invented in public.\n\nOne of the most interesting developments is how AI is crossing into highly regulated industries. Anthropic’s move into legal services is a strong signal. Legal work is document-heavy, repetitive in parts, and expensive. AI can help with review, drafting, and research, which is why law firms and legal departments are paying attention. But the legal sector also demands precision, accountability, and explainability. If AI gets it wrong in a contract, a filing, or a compliance workflow, the cost is not just inconvenience. It can be serious liability.\n\nThat same tension is showing up in the broader regulatory landscape. New rules in the U.S. and Europe are pushing companies to think more carefully about provenance, labeling, transparency, and oversight. In plain English: if AI generated it, altered it, or influenced it, people increasingly want to know. And they want systems that can prove it. That means the future of AI won’t just be about model quality. It will also be about documentation quality, auditability, and the ability to explain how a system reached a decision.\n\nNow let’s talk about cars, because even there, AI is becoming part of the interface. Rivian’s onboard assistant is a good example of how AI is moving from novelty to utility. Drivers don’t just want entertainment; they want smarter navigation, better vehicle management, and less friction. In that environment, a conversational assistant can feel natural. But once again, the bar is high. In a car, a bad recommendation is not a bad search result. It can affect safety, comfort, and confidence.\n\nWhat ties all of this together is a shift in expectations. We are teaching software to behave more like a collaborator. That sounds wonderful, and often it is. But collaboration requires judgment, and judgment requires boundaries. The companies that succeed in this era will not just be the ones with the biggest models or the flashiest demos. They’ll be the ones that understand where AI should act autonomously, where it should ask for permission, and where it should simply stay in the background.\n\nSo if you want the takeaway in one sentence, here it is: AI is no longer just a feature, it is becoming the operating layer of modern tech. That brings massive opportunity, but it also brings risk, cost, and accountability. The next phase of the AI story will not be defined by whether machines can do more. We already know they can. It will be defined by whether companies, regulators, and users can decide wisely what they should do.\n\nAnd that, ultimately, is the real tech story of this week. Not just smarter systems. Smarter choices about how we use them.",
-    "image_path": "https://v3b.fal.media/files/b/0a9a73ea/At503LCaH_3ZDH2XF3S2f_y6QJkosd.png",
+    "sujet": "Open source vs propriétaire : le grand débat de l'IA en 2026",
+    "script": "Bonsoir, je suis Marc. Ce soir, je vous propose de revenir sur un débat qui agite le monde de la tech depuis plusieurs mois : faut-il que les modèles d'IA soient open source ou rester propriétaires ? D'un côté, des acteurs comme Meta, Mistral ou DeepSeek plaident pour la transparence et l'accessibilité. Ils arguent que des modèles ouverts permettent à la communauté de détecter les biais, d'auditer la sécurité et de démocratiser l'accès. De l'autre côté, OpenAI, Anthropic et Google estiment que certains systèmes sont trop puissants pour être diffusés sans garde-fous. Le risque de détournement est réel. La question n'a pas de réponse simple, mais une chose est certaine : le choix que nous faisons collectivement aujourd'hui dessinera l'IA de demain.",
+    "image_path": "images/1810_tech.png",
     "audio_path": "audio/1810_tech.mp3",
     "intro_audio_path": "intros_songs/tech_&_AI_intro.mp3",
     "outro_audio_path": "intros_songs/tech_&_AI_intro.mp3",
@@ -347,11 +347,11 @@
     "intro_duration_sec": 65,
     "outro_duration_sec": 65,
     "title": null,
-    "last_generated_at": "2026-05-16T15:15:46.764680Z"
+    "last_generated_at": "2026-05-16T18:05:18.537803Z"
   },
   {
     "id": "1820_culture",
-    "start_time": "18:20",
+    "start_time": "14:20",
     "duration_sec": 609,
     "thematique": "culture",
     "nb_intervenants": 2,
@@ -361,9 +361,9 @@
     ],
     "langue": "en",
     "type_script": "debate",
-    "sujet": "Culture in 2026: what deserves the spotlight?",
-    "script": "[Sofia] Bonjour à tous, and welcome back. Today we’re doing culture as a debate, because honestly, 2026 is already looking like one of those years where your calendar could become a full-time job. I’m Sofia, and with me is Hugo.\n[Hugo] And I’m Hugo, ready to argue that culture is only exciting when it surprises us. Not just the big names, not just the safe bets, but the projects that make you sit up and go, wait, that’s happening where?\n[Sofia] Exactly. And the first thing I want to put on the table is this: culture in 2026 feels less like a single season and more like a global relay race. From London to Iceland to Indianapolis, the list of exhibitions, albums, festivals, and performances is sprawling. The question is, what actually matters?\n[Hugo] Or more bluntly: what cuts through the noise? Because there’s a difference between “there’s a lot on” and “there’s something worth leaving the house for.”\n[Sofia] Fair. But I’d argue the sheer variety is the point. Take Björk taking over the National Gallery of Iceland with Echolalia. That’s not just an exhibition. That’s an artist with a new album in development creating an immersive installation in a national institution. It’s music, visual art, and performance language all colliding.\n[Hugo] Björk is the perfect example of why the word “genre” is getting tired. She never stays in one lane long enough for anyone to label her properly. But here’s my challenge: is that kind of avant-garde spectacle still accessible, or does it risk becoming culture for the converted?\n[Sofia] I think it can be both. The converted will come for the mythology, sure, but the immersive format can pull in people who might never go to a traditional gallery show. That’s the power of an artist like Björk: she makes experimental work feel like an event.\n[Hugo] I’ll give you that. And if we’re talking about events, Salman Toor’s first European exhibition at The Courtauld in London is another major moment. His paintings of queer Brown men, rendered with Old Master precision, are not just visually striking—they’re culturally loaded. He’s placing contemporary queer experience inside a lineage that historically excluded it.\n[Sofia] That’s exactly why it matters. Toor isn’t simply painting identity; he’s rewriting the art-historical frame. And doing it in Europe, where so much of that style was canonized, adds another layer. It’s almost like he’s walking into the room and saying: I belong here too, but on my own terms.\n[Hugo] That’s the kind of exhibition that can shift the conversation. Not because it’s trendy, but because it changes who gets centered in the story of art.\n[Sofia] And that brings us to one of the big tensions in culture right now: are institutions catching up, or are they just packaging diversity more elegantly?\n[Hugo] Ooh, that’s a loaded question.\n[Sofia] It is, but it’s fair. A gallery show can be radical, yes. But if the institution itself doesn’t change, then the radicalism can become decorative. So when we celebrate a show like Toor’s, or a Björk takeover, we should also ask: what happens after the opening night? Who gets the next slot?\n[Hugo] That’s where I’ll push back a little. Sometimes the artwork leads the institution rather than the other way around. Culture moves because artists force it to move. Institutions are often slower, yes, but they do eventually shift because of these interventions.\n[Sofia] True, but audiences shouldn’t be asked to applaud the bare minimum. Let’s not pretend every “first” is automatically progress. Still, I agree that artists are often the engine.\n[Hugo] And the engine is running everywhere in 2026. Look at the music side. We’ve got The All-American Rejects returning with their first full-length album in 14 years. That’s nostalgia with a pulse. Then Ed O’Brien from Radiohead comes in with Blue Morpho, described as atmospheric and environmental. Future Islands are back with their emotionally raw synth-pop. And that’s just May.\n[Sofia] The music calendar is fascinating because it’s balancing reunion energy with reinvention. You’ve got bands reclaiming their place, artists deepening their solo voice, and listeners deciding whether they want comfort or challenge.\n[Hugo] Usually they want both. They want the song they loved at 17 and the album that makes them feel intellectually superior at 37.\n[Sofia] That is an extremely accurate and slightly insulting summary of music fandom.\n[Hugo] Thank you. I’m here all week.\n[Sofia] But seriously, this is where culture becomes a mirror. The return of familiar names can feel like a public memory test. Can this band still matter? Can this artist still surprise us? And often the answer is yes, if they’re willing to evolve.\n[Hugo] Exactly. A comeback is only interesting if it isn’t just a museum exhibit. The All-American Rejects can’t simply recreate 2000s alt-rock and expect the world to kneel. They need to sound alive now.\n[Sofia] Which is why the strongest cultural moments in 2026 seem to be the ones rooted in transformation. Even in film and television, identity is a central theme. Riz Ahmed’s new series Bait, for instance, uses the premise of an actor pulled into Bond casting rumors to explore self-acceptance, culture, and confidence. That’s not just entertainment. That’s a conversation about representation and performance.\n[Hugo] And it’s clever because it plays with the fantasy of celebrity while exposing the insecurity underneath. Culture loves a surface-level glamour story, but the best work asks what that glamour costs.\n[Sofia] Exactly. And then you have something like Cannes, where industry power, artistic prestige, and public image all collide in one place. Sean Astin talking about SAG-AFTRA and the need to protect the gains from the 2023 strike reminds us that culture is also labor. The art doesn’t exist without the people making it, and those people need protections.\n[Hugo] That’s an important point. We can get lost in the glamour of festivals and exhibitions, but culture is also contracts, wages, rights, and leverage. If the workers aren’t secure, the culture gets weaker.\n[Sofia] So maybe the real debate is not “high culture versus pop culture,” but “surface versus structure.” We can admire the spectacle, but we also have to care about the conditions behind it.\n[Hugo] I like that. Though I’d still say the public usually arrives through the spectacle. People don’t first fall in love with labor policy. They fall in love with the album, the painting, the film, the show.\n[Sofia] And then, ideally, they learn to care about what makes it possible.\n[Hugo] Fair enough. Now let’s talk about something deliciously different: gastronomy as art. There’s this growing Nordic cuisine movement using theatrical meals, and it raises the same question we see in galleries and theaters: when does presentation become meaning?\n[Sofia] Ah, the dinner-table debate. I love it. Food has always been cultural performance, but the more experimental it gets, the more it blurs into installation art. A meal can tell a story, stage a memory, even provoke a political response.\n[Hugo] But is that still food, or is it just a concept with edible components?\n[Sofia] Why not both? That’s the modern cultural answer. We’re living in a time where categories are porous. A concert can be an installation. A dinner can be a performance. A museum can host a new album. And a TV series can become a meditation on identity.\n[Hugo] That’s the upside of 2026 culture: it refuses neat boxes. The downside is that everyone pretends they understand all of it.\n[Sofia] Touché. But I think audiences are more open than people assume. They may not know the theory, but they know when something feels alive. They know when an exhibition has urgency. They know when a record sounds like a genuine statement. They know when a cultural moment is more than branding.\n[Hugo] Then let’s test that with the exhibition list. Nan Goldin’s The Ballad of Sexual Dependency at Davies Street Gallery in London is a major reminder of photography’s emotional force. Goldin’s work has always been intimate, raw, and politically charged. It doesn’t ask permission to be felt.\n[Sofia] And that’s why it remains so powerful. In a world of polished images and algorithmic self-presentation, Goldin’s work feels almost confrontational in its honesty. It says: this is what lived experience looks like, with all the mess intact.\n[Hugo] Which is probably why people keep returning to it. Culture isn’t just about novelty. Sometimes it’s about re-encountering work that still has teeth.\n[Sofia] Absolutely. And that’s the tension I keep coming back to. 2026 is full of newness, but the best culture isn’t disposable. It has afterlife. It lingers. It changes the way we see the next thing.\n[Hugo] So if I’m summing up my side of the debate, I’d say this: the most exciting culture in 2026 will be the work that takes a risk without becoming self-indulgent. Björk in Iceland? Risk. Salman Toor in London? Risk. A new album from a band people thought had already peaked? Risk. That’s where the energy is.\n[Sofia] And my closing argument is that culture matters most when it widens the frame. When it brings in artists, audiences, and stories that were previously pushed to the margins. When a gallery show, album, or performance doesn’t just entertain but reorders who feels visible.\n[Hugo] So we agree, then: culture in 2026 isn’t one thing.\n[Sofia] It’s a battlefield, a playground, a memory bank, and sometimes a dinner table.\n[Hugo] And if we’re lucky, it’s also a little bit of a revelation.\n[Sofia] That’s all for today. Keep your calendars open, your ears sharp, and your assumptions loose.\n[Hugo] Thanks for listening, and we’ll be back soon with more debate, more culture, and probably more opinions than strictly necessary.\n[Sofia] Until next time, take care.",
-    "image_path": "https://v3b.fal.media/files/b/0a9a73eb/Wto1ciaQ3YZs4K04LyC7p_hi76ZaKS.png",
+    "sujet": "L'art généré par IA mérite-t-il d'être exposé dans les musées ?",
+    "script": "[Sofia] Bonsoir à tous. Ce soir, Hugo et moi allons débattre d'une question qui fait rage dans le monde de l'art : l'art généré par intelligence artificielle a-t-il sa place dans les musées ?\n[Hugo] Je vais défendre le oui. Un musée doit être le miroir de son époque. Et notre époque, c'est celle de l'IA. Exclure ces œuvres, c'est nier une réalité culturelle majeure.\n[Sofia] Je comprends l'argument, mais je ne suis pas d'accord. Ce qui fait la valeur d'une œuvre d'art, c'est l'intention, la vulnérabilité, le vécu de l'artiste. Une IA n'a pas de vécu.\n[Hugo] Mais l'artiste qui utilise l'IA comme outil a un vécu ! Le prompt, les choix esthétiques, la curation — c'est une forme d'auteuriat.\n[Sofia] C'est vrai pour l'artiste qui pilote l'outil. Mais qu'en est-il des œuvres 100 % autonomes, sans intervention humaine ? Là, je pense qu'on sort du domaine de l'art.\n[Hugo] Peut-être. Mais la frontière est floue. Et cette flou est lui-même une richesse pour la réflexion.\n[Sofia] Sur ce point-là, je suis d'accord. Ce débat nous force à redéfinir ce qu'est l'art. Et ça, c'est précieux. Merci Hugo, merci à tous.",
+    "image_path": "images/1820_culture.png",
     "audio_path": "audio/1820_culture.mp3",
     "intro_audio_path": "intros_songs/culture_intro.mp3",
     "outro_audio_path": "intros_songs/culture_intro.mp3",
@@ -372,11 +372,11 @@
     "intro_duration_sec": 4,
     "outro_duration_sec": 4,
     "title": null,
-    "last_generated_at": "2026-05-16T15:15:46.764680Z"
+    "last_generated_at": "2026-05-16T18:05:18.537803Z"
   },
   {
     "id": "gap_1830",
-    "start_time": "18:30",
+    "start_time": "14:30",
     "duration_sec": 591,
     "thematique": "music",
     "nb_intervenants": 0,
@@ -398,7 +398,7 @@
   },
   {
     "id": "1840_sport",
-    "start_time": "18:40",
+    "start_time": "14:40",
     "duration_sec": 498,
     "thematique": "sport",
     "nb_intervenants": 2,
@@ -423,7 +423,7 @@
   },
   {
     "id": "gap_1848",
-    "start_time": "18:48",
+    "start_time": "14:48",
     "duration_sec": 1302,
     "thematique": "music",
     "nb_intervenants": 0,
@@ -445,7 +445,7 @@
   },
   {
     "id": "1910_lifestyle",
-    "start_time": "19:10",
+    "start_time": "15:10",
     "duration_sec": 452,
     "thematique": "lifestyle",
     "nb_intervenants": 2,
@@ -470,7 +470,7 @@
   },
   {
     "id": "gap_1917",
-    "start_time": "19:17",
+    "start_time": "15:17",
     "duration_sec": 1348,
     "thematique": "music",
     "nb_intervenants": 0,
@@ -492,7 +492,7 @@
   },
   {
     "id": "1940_tech",
-    "start_time": "19:40",
+    "start_time": "15:40",
     "duration_sec": 654,
     "thematique": "tech & AI",
     "nb_intervenants": 2,
@@ -517,7 +517,7 @@
   },
   {
     "id": "gap_1950",
-    "start_time": "19:50",
+    "start_time": "15:50",
     "duration_sec": 1446,
     "thematique": "music",
     "nb_intervenants": 0,
@@ -539,7 +539,7 @@
   },
   {
     "id": "2015_news",
-    "start_time": "20:15",
+    "start_time": "16:15",
     "duration_sec": 809,
     "thematique": "international news",
     "nb_intervenants": 1,
