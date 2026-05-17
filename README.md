@@ -22,11 +22,11 @@ An AI-generated 24/7 radio station that runs fully autonomously. Every night a p
 ┌──────────────────────────────────────────────────────────┐
 │                  Nightly Pipeline  (00:00)                │
 │                                                          │
-│  Orchestrator  (GPT-4o)                                  │
+│  Orchestrator  (gpt-5-mini)                                  │
 │    └─ generates targeted search queries per theme        │
 │                                                          │
 │  Theme Agents  (parallel)                                │
-│    └─ Tavily web search → GPT-4o script writing          │
+│    └─ Tavily web search → gpt-5-mini script writing          │
 │         └─ writes sujet + script → programme.json        │
 │                                                          │
 │  Media Agent   (fal.ai flux/schnell)                     │
@@ -233,21 +233,3 @@ radio-ai/
 # View installed cron entries
 crontab -l
 ```
-
----
-
-## Deployment notes
-
-- The web app is a standard Next.js app and can be deployed to Vercel, a VPS, or any Node.js host.
-- `media/` must be writable by the pipeline process and readable by the web server.
-- The pipeline is designed to run on the same machine as the web server; point `PROGRAMME_PATH` and `MEDIA_DIR` at shared locations if they differ.
-- The `/api/media/[...path]` route handles HTTP Range requests (`206 Partial Content`) so seeking works correctly without re-downloading the full file.
-
----
-
-## Known limitations
-
-- **Gradium TTS** — the client is isolated in `pipeline/tts.py`. Update `_call_gradium_tts_stub()` when official API docs are available.
-- **fal.ai** — similarly isolated in `pipeline/media_agent.py`. Model name and response shape may need adjustment.
-- **Single-day schedule** — the programme resets at midnight; multi-day archives are not implemented.
-- **No live failover** — if a slot has no audio, the player shows a disabled state.
