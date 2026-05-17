@@ -1,0 +1,82 @@
+name: Daily Radio Pipeline
+
+on:
+  schedule:
+    # Midnight Paris time (UTC+2 summer / UTC+1 winter) — runs at 22:00 UTC
+    - cron: "0 22 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (no TTS, no upload)"
+        type: boolean
+        default: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install system dependencies
+        run: sudo apt-get install -y ffmpeg
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download radio assets from R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: |
+          pip install awscli -q
+          mkdir -p programme_radio
+          aws s3 sync s3://radio-ai/assets/ programme_radio/ \
+            --endpoint-url https://32c7843e1d35d868346f8e24da089b07.r2.cloudflarestorage.com \
+            --region auto
+          echo "Assets downloaded:"
+          find programme_radio -name "*.mp3" | wc -l
+
+      - name: Create required directories
+        run: mkdir -p media/audio media/images logs
+
+      - name: Run pipeline
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: gpt-4o-mini
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          FAL_API_KEY: ${{ secrets.FAL_API_KEY }}
+          GRADIUM_API_KEY: ${{ secrets.GRADIUM_API_KEY }}
+          GRADIUM_BASE_URL: ${{ secrets.GRADIUM_BASE_URL }}
+          VOICE_MAP: "Claire=voice_fr_female_1,Marc=voice_fr_male_1,Léa=voice_fr_female_2,Sofia=voice_fr_female_3,Tom=voice_fr_male_2,Inès=voice_fr_female_4,Hugo=voice_fr_male_3,Yanis=voice_fr_male_4,Emma=voice_fr_female_5"
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: radio-ai
+          R2_PUBLIC_URL: https://pub-792af2e012ff4f0f90fb71e69e11c2f5.r2.dev
+          PROGRAMME_PATH: ./programme.json
+          MEDIA_DIR: ./media
+          RADIO_ASSETS_DIR: ./programme_radio
+          TIMEZONE: Europe/Paris
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            python -m pipeline.run_daily --dry-run
+          else
+            python -m pipeline.run_daily
+          fi
+
+      - name: Upload logs as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-logs-${{ github.run_id }}
+          path: logs/
+          retention-days: 7
